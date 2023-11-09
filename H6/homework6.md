@@ -59,16 +59,16 @@
     <0.111.0>
 12> self().
     <0.109.0>
-13> Pid1 = spawn(protocol, ipv4, [DataWrongVer]).
-    =ERROR REPORT==== 3-Nov-2023::18:41:59.274000 ===
-    Error in process <0.114.0> with exit value:
-    {{nocatch,badarg},[{protocol,ipv4,1,[{file,"protocol.erl"},{line,46}]}]}
+13>  Pid2 = spawn(protocol, ipv4, [DataWrongVer]).
+=ERROR REPORT==== 9-Nov-2023::18:39:17.824000 ===
+Error in process <0.93.0> with exit value:
+{{nocatch,badarg},[{protocol,ipv4,1,[{file,"protocol.erl"},{line,48}]}]}
 
-    ** exception error: no match of right hand side value <0.114.0>
+<0.93.0>
 14> self().
-    <0.115.0>
+    <0.85.0>
 
-        %% да изменился, так как процесс запустился и завершился с ошибкой поэтому и пид процесса сменился
+        %% ничего не изменилось так ка процессы не связаны
 
 %% Задание 4
 
