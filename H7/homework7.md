@@ -178,3 +178,94 @@ undefined
     <0.140.0>
 
     %% как видно процессы завершились корзина с сообщениями пуста, но с трап экзитами что то не выходит
+
+    %%ПОПРАВКИ
+
+1> c("keylist.erl").
+    
+    {ok,keylist}
+
+2> {ok, PidMonitored, MonitorRef} = keylist:start_monitor(monitored).
+    
+    {ok,<0.92.0>,#Ref<0.808809936.132120582.131281>}
+
+3> flush().
+
+    Shell got {ok,<0.92.0>,#Ref<0.808809936.132120582.131281>}
+    ok
+
+4> {ok,PidLinked} = keylist:start_link(linked).
+    
+    {ok,<0.95.0>}
+
+5> PidLinked ! (self(), add, key1, 1, "first_msg").
+    
+    * 1:20: syntax error before: ','
+
+5> PidLinked ! {self(), add, key1, 1, "first_msg"}.
+
+    {<0.85.0>,add,key1,1,"first_msg"}
+
+6> PidLinked ! {self(), add, key2, 2, "second_msg"}.
+
+    {<0.85.0>,add,key2,2,"second_msg"}
+
+7> PidLinked ! {self(), add, key3, 3, "third_msg"}.
+
+    {<0.85.0>,add,key3,3,"third_msg"}
+
+8> flush().
+
+    Shell got {ok,<0.95.0>}
+    Shell got {ok,1}
+    Shell got {ok,2}
+    Shell got {ok,3}
+    ok
+
+9> PidLinked ! {self(), take, key3}.
+    
+    {<0.85.0>,take,key3}
+
+10> PidLinked ! {self(), take, key2}.
+
+    {<0.85.0>,take,key2}
+
+11> PidLinked ! {self(), take, key1}.
+
+    {<0.85.0>,take,key1}
+
+12> flush().
+
+    Shell got {ok,{value,{key3,3,"third_msg"}},4}
+    Shell got {ok,{value,{key2,2,"second_msg"}},5}
+    Shell got {ok,{value,{key1,1,"first_msg"}},6}
+    ok
+
+13> exit(PidMonitored, killed).
+
+    true
+
+14> flush().
+
+    Shell got {'DOWN',#Ref<0.808809936.132120582.131281>,process,<0.92.0>,killed}
+    ok
+
+15> exit(PidLinked, killed).
+    
+    ** exception exit: killed
+
+16> exit(PidLinked, kill).
+    
+    true
+
+17> flush().
+
+    ok
+
+18> exit(PidLinked, killed).
+
+    true
+
+19> flush().
+    
+    ok

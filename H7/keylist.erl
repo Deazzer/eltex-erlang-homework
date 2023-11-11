@@ -12,20 +12,20 @@ start_monitor(Name) ->
     Pid = spawn(keylist, loop, [#state{}]),
         register(Name, self()),
             MonitorRef = erlang:monitor(process, Pid),
-		        {ok, Pid, MonitorRef}.
+		        self() ! {ok, Pid, MonitorRef}.
 
 start_link(Name) ->
 	Pid = spawn(keylist, loop, [#state{}]),
         link(Pid),
             register(Name, Pid),    
-                {ok, Pid}.
+                self() ! {ok, Pid}.
 loop(#state{list = List, counter = Counter} = State) ->
     receive
         
         {From, add, Key, Value, Comment} ->
             NewState = State#state{list = [{Key, Value, Comment} | List], counter = Counter + 1},
-                From ! {ok, NewState#state.counter},
-                    loop(NewState);
+                From ! {ok, NewState#state.counter},    
+                        loop(NewState);
 
         {From, is_member, Key} ->
             Result = lists:keymember(Key, List, 1),
