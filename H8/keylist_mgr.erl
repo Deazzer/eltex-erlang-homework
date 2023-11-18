@@ -37,21 +37,21 @@ stop() ->
                 
                     _ ->
                         keylist:stop(Name),
-                            NewChildren = State#state{children = proplists:delete(Name, Children)},
-                                From ! {ok, NewChildren},
-                                    loop(State#state{children = NewChildren})
+                        NewChildren = State#state{children = proplists:delete(Name, Children)},
+                        From ! {ok, NewChildren},
+                        loop(State#state{children = NewChildren})
                 end;                       
                 
                 {From, stop} ->
                     From ! stopped,
-                exit(normal);
+                    exit(normal);
     
                 {From, get_names} ->
-                From ! proplists:get_keys(State#state.children),
-                loop(State);
+                    From ! proplists:get_keys(State#state.children),
+                    loop(State);
             
                 {'EXIT', Pid, Reason} ->
-                        error_logger:error_msg("Process ~p exited with reason ~p~n", [Pid, Reason]),
-                            NewState = State#state{children = proplists:delete(Pid, Children)},
-                                loop(NewState)
+                    error_logger:error_msg("Process ~p exited with reason ~p~n", [Pid, Reason]),
+                    NewState = State#state{children = proplists:delete(Pid, Children)},
+                    loop(NewState)
             end.
