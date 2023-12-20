@@ -58,17 +58,16 @@ loop(#state{children = Children, permanent = Permanent} = State) ->
                     NewChildren = [{Name, Pid} | Children],
                     NewPermanent = case Param of   
                         permanent ->
-                            [Pid | Permanent],
-                            From ! {ok, Pid};
+                            [Pid | Permanent];
                         temporary ->
-                            Permanent,
-                            From ! {ok, Pid};
+                            Permanent;
                         _ ->
                             From ! {error, type_error}
                     end,
                     From ! {ok, Pid},
                     loop(State#state{children = NewChildren, permanent = NewPermanent});
-                _ ->
+                {Name, true} ->
+                    io:format("It's map already exists ~n~p", [Name]),
                     From ! {error, already_started},
                     loop(State)
             end;
@@ -92,12 +91,14 @@ loop(#state{children = Children, permanent = Permanent} = State) ->
     
         {From, get_names} ->
             From ! proplists:get_keys(State#state.children),
+            From ! proplists:get_keys(State#state.permanent),
             loop(State);
             
         {'EXIT', FailedPid, Reason} ->
-            {Name, _} = proplists:lookup(FailedPid, Children),
-            case proplists:lookup(FailedPid, Permanent) of
-                {_, true} ->
+            {Name,_} = lists:keyfind(FailedPid, 2, Children),
+            io:format("~n~p~n", [Name]),
+            case lists:member(FailedPid, Permanent) of
+                true ->
                     error_logger:error_msg("Process ~p exited with reason ~p~n", [FailedPid, Reason]),
                     proplists:delete(FailedPid, Children),
                     proplists:delete(FailedPid, Permanent),
@@ -105,7 +106,7 @@ loop(#state{children = Children, permanent = Permanent} = State) ->
                     NewChildren = [{Name, Pid} | Children],
                     NewPermanent =[{Pid} | Permanent],
                     loop(State#state{children = NewChildren, permanent = NewPermanent});
-                none ->
+                false ->
                     error_logger:error_msg("Process ~p exited with reason ~p~n", [FailedPid, Reason]),
                     NewState = State#state{children = proplists:delete(FailedPid, Children)},
                     loop(NewState)
