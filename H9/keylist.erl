@@ -55,7 +55,7 @@ take(Key) ->
 
 loop(#state{list = List, counter = Counter} = State) ->
     receive
-        
+        %% считывание сообщений и выполнение требуемых операций
         {From, add, Key, Value, Comment} ->
             NewState = State#state{list = [{Key, Value, Comment} | List], counter = Counter + 1},
                 From ! {ok, NewState#state.counter},    

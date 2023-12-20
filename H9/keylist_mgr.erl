@@ -93,7 +93,7 @@ loop(#state{children = Children, permanent = Permanent} = State) ->
             From ! proplists:get_keys(State#state.children),
             From ! proplists:get_keys(State#state.permanent),
             loop(State);
-            
+            %% регистрация завершения дочернего процесса и перезапуск
         {'EXIT', FailedPid, Reason} ->
             {Name,_} = lists:keyfind(FailedPid, 2, Children),
             io:format("~n~p~n", [Name]),
